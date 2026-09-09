@@ -1,20 +1,36 @@
-import { useState, useEffect } from 'react';
 import Images from './components/Images';
+import useImage from './redux/useImage';
 
 const App = () => {
 
-  const [images, setImages] = useState([]);
-  const [page, setPage] = useState(100)
+  const {
+    images,
+    page,
+    loading,
+    error,
+    handlePrevPage,
+    handleNextPage
+  } = useImage();
 
-  const getData = async () => {
-    const response = await fetch(`https://picsum.photos/v2/list?page=${page}&limit=8`);
-    const data = await response.json();
-    setImages(data);
+  if (error) {
+    return (
+      <div className='min-h-screen w-screen bg-gray-900 text-white flex items-center justify-center'>
+        <div className="error text-xl font-bold text-red-500">
+          {error}
+        </div>
+      </div>
+    )
   }
 
-  useEffect(() => {
-    getData();
-  }, [page])
+  if (images.length === 0) {
+    return (
+      <div className='min-h-screen w-screen bg-gray-900 text-white flex items-center justify-center'>
+        <div className="no-images text-xl font-bold text-gray-300">
+          No images found.
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='min-h-screen w-screen bg-gray-900 text-white flex flex-col items-center justify-start p-6'>
@@ -22,22 +38,30 @@ const App = () => {
         Gallery
       </div>
 
-      <Images images={images} />
+      {loading ? (
+        <div className='bg-[#535660] p-6 rounded-lg flex items-center justify-center'>
+          <div className="loader text-xl font-bold text-gray-300">
+            Loading...
+          </div>
+        </div>
+      ) : (
+        <Images images={images} />
+      )}
 
       <div className="btns flex items-center gap-4 justify-center mt-6">
         <button
-          onClick={() => { if (page !== 100) setPage(page - 1) }}
-          style={{ opacity: page === 100 ? 0.5 : 1, cursor: page === 100 ? 'not-allowed' : 'default' }}
+          onClick={() => { if (page !== 1) handlePrevPage() }}
+          style={{ opacity: page === 1 ? 0.5 : 1, cursor: page === 1 ? 'not-allowed' : 'default' }}
           className='px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 duration-300 transition-colors'>
           prev
         </button>
 
         <div className="page-no font-bold text-blue-500">
-          {page - 99}
+          Page: {page}
         </div>
 
         <button
-          onClick={() => setPage(page + 1)}
+          onClick={() => { handleNextPage() }}
           className='px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 duration-300 transition-colors cursor-pointer'>
           next
         </button>

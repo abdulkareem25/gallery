@@ -1,4 +1,7 @@
+import useImage from "../redux/useImage";
+
 const Images = ({ images }) => {
+
     return (
         <div className="images flex flex-wrap justify-center gap-4 bg-[#535660] p-6 rounded-lg max-w-6xl">
             {images.map((img, idx) => {
